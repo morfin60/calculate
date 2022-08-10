@@ -64,7 +64,7 @@ func (tc *TopCharacters) Result() string {
 
 	table.AddHeader([]string{"Rank", "Character", "Frequency"})
 
-	//For each word from top 10 add row into table
+	//For each character from top 10 add row into table
 	for i, key := range keys {
 		rank := strconv.Itoa(i + 1)
 		frequency := strconv.Itoa(tc.charactersCount[key].count)

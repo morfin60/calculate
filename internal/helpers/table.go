@@ -26,6 +26,7 @@ func NewTable(columns int) *Table {
 	}
 }
 
+// Add header to table
 func (t *Table) AddHeader(values []string) {
 	t.header = &row{values}
 
@@ -36,6 +37,7 @@ func (t *Table) AddHeader(values []string) {
 	}
 }
 
+// Add row to table
 func (t *Table) AddRow(values []string) error {
 	if len(values) != t.columns {
 		return errors.New("Invalid number of values")
@@ -52,6 +54,7 @@ func (t *Table) AddRow(values []string) error {
 	return nil
 }
 
+// Return table with formatting as string
 func (t *Table) ToString() string {
 	lines := make([]string, 0, len(t.rows)+2)
 
