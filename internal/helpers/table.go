@@ -13,6 +13,7 @@ type row struct {
 
 type Table struct {
 	columns    int
+	offset     int
 	header     *row
 	rows       []row
 	columnSize []int
@@ -24,6 +25,11 @@ func NewTable(columns int) *Table {
 		columnSize: make([]int, columns),
 		rows:       make([]row, 0),
 	}
+}
+
+// Set table offset
+func (t *Table) SetOffset(offset int) {
+	t.offset = offset
 }
 
 // Add header to table
@@ -57,6 +63,7 @@ func (t *Table) AddRow(values []string) error {
 // Return table with formatting as string
 func (t *Table) ToString() string {
 	lines := make([]string, 0, len(t.rows)+2)
+	offsetText := strings.Repeat(" ", t.offset)
 
 	if t.header != nil {
 		headerLine := ""
@@ -64,8 +71,8 @@ func (t *Table) ToString() string {
 
 		for col, value := range t.header.values {
 			colSize := strconv.Itoa(t.columnSize[col] + 5)
-			headerLine += fmt.Sprintf("%-"+colSize+"s", value)
-			delimiterLine += fmt.Sprintf("%-"+colSize+"s", strings.Repeat("=", len(value)))
+			headerLine += fmt.Sprintf(offsetText+"%-"+colSize+"s", value)
+			delimiterLine += fmt.Sprintf(offsetText+"%-"+colSize+"s", strings.Repeat("=", len(value)))
 		}
 
 		lines = append(lines, headerLine)
@@ -78,7 +85,7 @@ func (t *Table) ToString() string {
 		for col, value := range t.rows[i].values {
 			colSize := strconv.Itoa(t.columnSize[col] + 5)
 
-			line += fmt.Sprintf("%-"+colSize+"s", value)
+			line += fmt.Sprintf(offsetText+"%-"+colSize+"s", value)
 		}
 
 		lines = append(lines, line)

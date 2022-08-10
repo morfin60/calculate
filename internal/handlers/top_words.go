@@ -58,6 +58,7 @@ func (tw *TopWords) Result() string {
 	})
 
 	table := helpers.NewTable(3)
+	table.SetOffset(4)
 
 	table.AddHeader([]string{"Rank", "Word", "Frequency"})
 
@@ -72,5 +73,5 @@ func (tw *TopWords) Result() string {
 		}
 	}
 
-	return table.ToString()
+	return "Top 10 Words:\n" + table.ToString()
 }

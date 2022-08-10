@@ -61,6 +61,7 @@ func (tc *TopCharacters) Result() string {
 	})
 
 	table := helpers.NewTable(3)
+	table.SetOffset(4)
 
 	table.AddHeader([]string{"Rank", "Character", "Frequency"})
 
@@ -75,5 +76,5 @@ func (tc *TopCharacters) Result() string {
 		}
 	}
 
-	return table.ToString()
+	return "Top 10 Characters: \n" + table.ToString()
 }
