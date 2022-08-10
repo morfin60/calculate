@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/morfin60/calculate/internal/handlers"
 	"github.com/morfin60/calculate/internal/handlers/factory"
@@ -18,18 +19,20 @@ func main() {
 		return
 	}
 
+	wg := sync.WaitGroup{}
 	handlersFactory := factory.NewHandlerFactory()
 	reader := bufio.NewReader(os.Stdin)
 	scanner := bufio.NewScanner(reader)
-	handlers := map[string]handlers.Handler{}
+	handlers := []handlers.Handler{}
 
 	scanner.Split(helpers.SplitText)
 
 	// For each argument get handler if exists and process input data
 	for _, name := range os.Args[1:] {
 		if handler := handlersFactory.Create(name); handler != nil {
-			handlers[name] = handler
-			go handler.Process()
+			wg.Add(1)
+			handlers = append(handlers, handler)
+			go handler.Process(&wg)
 		} else {
 			println("Handler " + name + " does not exist")
 		}
@@ -42,19 +45,20 @@ func main() {
 
 	// Scan input for words
 	for scanner.Scan() {
-		for name := range handlers {
-			handlers[name].Data() <- scanner.Text()
+		for key := range handlers {
+			handlers[key].Data() <- scanner.Text()
 		}
 	}
 
 	// Close data channels when out of data
-	for name := range handlers {
-		close(handlers[name].Data())
+	for key := range handlers {
+		close(handlers[key].Data())
 	}
+
+	wg.Wait()
 
 	// Read results from channels
 	for name := range handlers {
-		fmt.Print(<-handlers[name].Result())
+		fmt.Printf("%s\n\n", handlers[name].Result())
 	}
-
 }

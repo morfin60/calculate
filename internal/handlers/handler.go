@@ -1,7 +1,9 @@
 package handlers
 
+import "sync"
+
 type Handler interface {
-	Process()
+	Process(wg *sync.WaitGroup)
 	Data() chan<- string
-	Result() <-chan string
+	Result() string
 }

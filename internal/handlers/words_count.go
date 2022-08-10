@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"sync"
 )
 
 type WordsCount struct {
@@ -10,19 +11,19 @@ type WordsCount struct {
 }
 
 func NewWordsCount() *WordsCount {
-	return &WordsCount{BaseHandler{make(chan string), make(chan string)}, 0}
+	return &WordsCount{BaseHandler{make(chan string)}, 0}
 }
 
 // Process incoming data
-func (wch *WordsCount) Process() {
+func (wc *WordsCount) Process(wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	for {
 		select {
-		case _, ok := <-wch.dataChannel:
+		case _, ok := <-wc.dataChannel:
 			if ok {
-				wch.wordsCount++
+				wc.wordsCount++
 			} else {
-				wch.resultChannel <- wch.format()
-
 				return
 			}
 		}
@@ -31,6 +32,6 @@ func (wch *WordsCount) Process() {
 }
 
 // Format result
-func (wch *WordsCount) format() string {
-	return fmt.Sprintf("WordsCount:\n     %d\n", wch.wordsCount)
+func (wc *WordsCount) Result() string {
+	return fmt.Sprintf("WordsCount:\n     %d\n", wc.wordsCount)
 }
