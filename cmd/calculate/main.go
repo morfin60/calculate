@@ -11,6 +11,13 @@ import (
 )
 
 func main() {
+	// If no handlers specified just show usage and exit
+	if len(os.Args) == 1 {
+		println("Usage: calculate [handlers]")
+
+		return
+	}
+
 	handlersFactory := factory.NewHandlerFactory()
 	reader := bufio.NewReader(os.Stdin)
 	scanner := bufio.NewScanner(reader)
@@ -23,12 +30,19 @@ func main() {
 		if handler := handlersFactory.Create(name); handler != nil {
 			handlers[name] = handler
 			go handler.Process()
+		} else {
+			println("Handler " + name + " does not exist")
 		}
+	}
+
+	// No handlers created just exit
+	if len(handlers) == 0 {
+		return
 	}
 
 	// Scan input for words
 	for scanner.Scan() {
-		for name, _ := range handlers {
+		for name := range handlers {
 			handlers[name].Data() <- scanner.Text()
 		}
 	}
@@ -39,7 +53,7 @@ func main() {
 	}
 
 	// Read results from channels
-	for name, _ := range handlers {
+	for name := range handlers {
 		fmt.Print(<-handlers[name].Result())
 	}
 
