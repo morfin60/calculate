@@ -8,8 +8,9 @@ type HandlerFactory struct {
 }
 
 const (
-	WordsCount string = "words-count"
-	TopWords   string = "top-words"
+	WordsCount    string = "words-count"
+	TopWords      string = "top-10-words"
+	TopCharacters string = "top-10-chars"
 )
 
 func NewHandlerFactory() *HandlerFactory {
@@ -23,6 +24,8 @@ func (hf *HandlerFactory) Create(name string) handlers.Handler {
 		return handlers.NewWordsCount()
 	case TopWords:
 		return handlers.NewTopWords()
+	case TopCharacters:
+		return handlers.NewTopCharacters()
 	}
 
 	return nil

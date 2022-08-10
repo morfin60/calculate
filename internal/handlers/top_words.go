@@ -55,7 +55,7 @@ func (tw *TopWords) Result() string {
 		frequency := strconv.Itoa(tw.wordCount[key])
 		table.AddRow([]string{rank, key, frequency})
 
-		if i == 10 {
+		if i+1 == 10 {
 			break
 		}
 	}

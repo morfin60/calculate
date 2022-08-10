@@ -28,6 +28,12 @@ func NewTable(columns int) *Table {
 
 func (t *Table) AddHeader(values []string) {
 	t.header = &row{values}
+
+	for col, value := range values {
+		if len(value) > t.columnSize[col] {
+			t.columnSize[col] = len(value)
+		}
+	}
 }
 
 func (t *Table) AddRow(values []string) error {
