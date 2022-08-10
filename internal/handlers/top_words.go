@@ -8,13 +8,18 @@ import (
 	"github.com/morfin60/calculate/internal/helpers"
 )
 
+type wordInfo struct {
+	count int
+	order int
+}
+
 type TopWords struct {
 	BaseHandler
-	wordCount map[string]int
+	wordCount map[string]*wordInfo
 }
 
 func NewTopWords() *TopWords {
-	return &TopWords{BaseHandler{make(chan string)}, map[string]int{}}
+	return &TopWords{BaseHandler{make(chan string)}, map[string]*wordInfo{}}
 }
 
 // Process incoming data
@@ -25,7 +30,10 @@ func (tw *TopWords) Process(wg *sync.WaitGroup) {
 		select {
 		case word, ok := <-tw.dataChannel:
 			if ok {
-				tw.wordCount[word]++
+				if _, ok := tw.wordCount[word]; !ok {
+					tw.wordCount[word] = &wordInfo{count: 0, order: len(tw.wordCount)}
+				}
+				tw.wordCount[word].count += 1
 			} else {
 				return
 			}
@@ -41,8 +49,12 @@ func (tw *TopWords) Result() string {
 		keys = append(keys, key)
 	}
 
-	sort.Slice(keys, func(i, j int) bool {
-		return tw.wordCount[keys[i]] > tw.wordCount[keys[j]]
+	sort.SliceStable(keys, func(i, j int) bool {
+		if tw.wordCount[keys[i]].count == tw.wordCount[keys[j]].count {
+			return tw.wordCount[keys[i]].order > tw.wordCount[keys[j]].order
+		}
+
+		return tw.wordCount[keys[i]].count > tw.wordCount[keys[j]].count
 	})
 
 	table := helpers.NewTable(3)
@@ -52,7 +64,7 @@ func (tw *TopWords) Result() string {
 	//For each word from top 10 add row into table
 	for i, key := range keys {
 		rank := strconv.Itoa(i + 1)
-		frequency := strconv.Itoa(tw.wordCount[key])
+		frequency := strconv.Itoa(tw.wordCount[key].count)
 		table.AddRow([]string{rank, key, frequency})
 
 		if i+1 == 10 {
