@@ -58,7 +58,12 @@ func main() {
 	wg.Wait()
 
 	// Read results from channels
-	for name := range handlers {
-		fmt.Printf("%s\n\n", handlers[name].Result())
+	for key := range handlers {
+		fmt.Print(handlers[key].Result())
+
+		// Not last result
+		if key < len(handlers)-1 {
+			fmt.Print("\n\n")
+		}
 	}
 }
